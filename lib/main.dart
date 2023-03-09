@@ -1,90 +1,51 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_demo/helper/DatabaseHelper.dart';
+import 'package:firebase_demo/screen/homePage.dart';
+import 'package:firebase_demo/screen/signInScreen.dart';
+import 'package:firebase_demo/utils/global.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp();
+  await Firebase.initializeApp();
   runApp(
     MaterialApp(
-      home: HomeScreen(),
+      routes: {
+        '/' : (context) => MyApp(),
+        'signIn' : (context) => SignIn(),
+        'home' : (context) => HomePage()
+      },
     ),
   );
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MyApp> createState() => _MyAppState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Appbar Auth"),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            CupertinoButton.filled(
-              onPressed: () async {
-                try{
-                  final userCredential =  await FirebaseAuth.instance.signInAnonymously();
-                } catch(e){
-                  print(e);
-                }
-              },
-              child: Text("Anonymou"),
-            ),
-            SizedBox(height: 20,),
-
-            CupertinoButton.filled(
-                child: Text("Email & PassWord"),
-              onPressed: () async {
-                 try{
-                   final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-                     email: "abc@gmail.com",
-                     password: "123456",
-                   );
-                 } catch(e)
-                {
-                  print(e);
-                }
-              },
-            ),
-
-            SizedBox(height: 20,),
-
-            CupertinoButton.filled(
-                child: Text("Login In Google",),
-                onPressed: () => setState(() {
-                  authGoogle();
-                }),
-
-            ),
-
-          ],
-        ),
+      body: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context,snapshot){
+          if(snapshot.hasData){
+            return HomePage();
+          }
+          else{
+            return SignIn();
+          }
+        },
       ),
     );
   }
-
-  authGoogle() async {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
-    final credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth?.accessToken,
-      idToken: googleAuth?.idToken,
-    );
-    print("email ${googleUser!.email}");
-    return await FirebaseAuth.instance.signInWithCredential(credential);
-  }
-
-
 }
+
+
