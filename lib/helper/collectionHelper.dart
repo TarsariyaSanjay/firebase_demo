@@ -32,20 +32,23 @@ class CollectionHelper{
 
   // ================= update
 
-  dataUpdate(){
+  dataUpdate({int? id,required UsersData usersData}) async {
+      var docSnap = await data.get();
+      var docId = docSnap.docs;
      return data
-         .doc('Jxz3yp2yDvbXpgokqPiZ')
-         .update(
-          UsersData(name: 'akash', age: '25').toMap())
+         .doc(docId[id!].id)
+         .update(usersData.toMap())
          .then((value) => print("data Update"))
          .catchError((error) => print("error : ${error}"));
   }
 
-  dataDelete(){
+  dataDelete({int? index}) async {
+    var docSnap = await data.get();
+    var docId = docSnap.docs;
     return data
-        .doc('pq24SiO7Q6kd0Dw3SEZT')
+        .doc(docId[index!].id)
         .delete()
-        .then((value) => print("data Update"))
+        .then((value) => print("data Delete"))
         .catchError((error) => print("error : ${error}"));
   }
 

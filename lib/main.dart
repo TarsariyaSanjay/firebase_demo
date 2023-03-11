@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_demo/helper/DatabaseHelper.dart';
+import 'package:firebase_demo/screen/EditPage.dart';
 import 'package:firebase_demo/screen/homePage.dart';
 import 'package:firebase_demo/screen/signInScreen.dart';
 import 'package:firebase_demo/utils/global.dart';
@@ -16,7 +17,8 @@ Future<void> main() async {
       routes: {
         '/' : (context) => MyApp(),
         'signIn' : (context) => SignIn(),
-        'home' : (context) => HomePage()
+        'home' : (context) => HomePage(),
+        'edit' : (context) => EditPage()
       },
     ),
   );
