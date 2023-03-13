@@ -5,7 +5,9 @@ import 'package:firebase_demo/model/Databasemodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+import '../main.dart';
 import '../utils/global.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,9 +20,32 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   CollectionHelper dbhHelper = CollectionHelper.instance;
+ int counter = 0;
+  void showNotification(){
+    setState(() {
+      counter++;
+    });
+    flutterLocalNotificationsPlugin.show(
+      0,
+        "My_Notification $counter",
+        "Hello Friends How Are You Looking Good",
+        NotificationDetails(
+            android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                importance:Importance.high,
+                playSound: true,
+                icon: '@mipmap/ic_launcher'
+            )
+        )
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    double h = MediaQuery.of(context).size.height;
+    double w = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
         title: Text("Home Page"),
@@ -136,7 +161,7 @@ class _HomePageState extends State<HomePage> {
               ),
 
               Container(
-                height: 500,
+                height: h,
                 color: Colors.grey.shade200,
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance.collection('data').snapshots(),
@@ -183,6 +208,11 @@ class _HomePageState extends State<HomePage> {
                       }
                     },
                 ),
+              ),
+
+              CupertinoButton.filled(
+                  child: Text("Show The Notification"),
+                  onPressed: (){},
               ),
             ],
           ),

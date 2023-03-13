@@ -7,7 +7,20 @@ import 'package:firebase_demo/screen/signInScreen.dart';
 import 'package:firebase_demo/utils/global.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    "My_Channel",
+    "Notification Chennel",
+    description: "Thsi Channel Is Used For Important notification",
+    importance: Importance.max
+);
+
+final AndroidFlutterLocalNotificationsPlugin
+      flutterLocalNotificationsPlugin = AndroidFlutterLocalNotificationsPlugin();
+
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
