@@ -1,12 +1,15 @@
+import 'dart:convert';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest.dart' as tz;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_demo/helper/collectionHelper.dart';
 import 'package:firebase_demo/model/Databasemodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
+import 'package:http/http.dart' as http;
 import '../main.dart';
 import '../utils/global.dart';
 
@@ -21,10 +24,62 @@ class _HomePageState extends State<HomePage> {
 
   CollectionHelper dbhHelper = CollectionHelper.instance;
  int counter = 0;
-  void showNotification(){
+
+  @override
+  void initState()
+  {
+    super.initState();
+    tz.initializeTimeZones();
+  }
+
+  void scheduled() {
+   setState(() {
+     counter++;
+   });
+
+   flutterLocalNotificationsPlugin.zonedSchedule(
+       counter,
+       "Testing Notification $counter",
+       "How are you Looking Good",
+       tz.TZDateTime.now(tz.local).add(Duration(seconds: 5)),
+       NotificationDetails(
+         android: AndroidNotificationDetails(
+           channel.id,
+           channel.name,
+           importance: Importance.high,
+           playSound: true,
+           icon: "@mipmap/ic_launcher"
+         ),
+       ),
+       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+       androidAllowWhileIdle: true,
+   );
+
+ }
+
+
+
+  flutterMessaging()
+  {
+
+
+  }
+
+  void showNotification() async {
     setState(() {
       counter++;
     });
+
+    final http.Response response = await http.get(
+        Uri.parse("https://images.unsplash.com/photo-1494976388531-d1058494cdd8?ixlib=rb-4.0.3&ixid=MnwxM"
+            "jA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80"));
+
+    BigPictureStyleInformation bigPictureStyleInformation =
+    BigPictureStyleInformation(
+        ByteArrayAndroidBitmap.fromBase64String(base64Encode(response.bodyBytes)),
+        largeIcon: ByteArrayAndroidBitmap.fromBase64String(base64Encode(response.bodyBytes)),
+    );
+
     flutterLocalNotificationsPlugin.show(
       0,
         "My_Notification $counter",
@@ -35,11 +90,13 @@ class _HomePageState extends State<HomePage> {
                 channel.name,
                 importance:Importance.high,
                 playSound: true,
-                icon: '@mipmap/ic_launcher'
+                icon: '@mipmap/ic_launcher',
+              styleInformation: bigPictureStyleInformation
             )
         )
     );
   }
+
 
 
   @override
@@ -160,8 +217,32 @@ class _HomePageState extends State<HomePage> {
                   }),
               ),
 
+              SizedBox(height: 30,),
+
+
+              CupertinoButton.filled(
+                child: Text("Show The Notification"),
+                onPressed: () => showNotification(),
+              ),
+
+              SizedBox(height: 30,),
+
+              CupertinoButton.filled(
+                child: Text("Scheduled The Notification"),
+                onPressed: () => scheduled(),
+              ),
+
+              SizedBox(height: 30,),
+
+              CupertinoButton.filled(
+                child: Text("Server Side Notification"),
+                onPressed: () => flutterMessaging(),
+              ),
+
+              SizedBox(height: 30,),
+
               Container(
-                height: h,
+                height: 200,
                 color: Colors.grey.shade200,
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance.collection('data').snapshots(),
@@ -210,10 +291,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              CupertinoButton.filled(
-                  child: Text("Show The Notification"),
-                  onPressed: (){},
-              ),
             ],
           ),
         ),
